@@ -18,7 +18,13 @@ self.addEventListener('activate', () => {
 })
 
 self.addEventListener('fetch', event => {
-    event.respondWith(cacheFirst(event.request))
+    const req = event.request
+    const url = new URL(req.url)
+    if(url.origin === location.origin){
+        event.respondWith(cacheFirst(req))
+    } else {
+        event.respondWith(networkFirst(req))
+    }
 })
 
 function cacheFirst(req){
@@ -26,4 +32,22 @@ function cacheFirst(req){
     .then(res => {
         return res || fetch(req)
     })
+}
+
+function networkFirst(req){
+    return caches.open('hello-pwa-dynamic')
+        .then(cache => {
+            try {
+                return fetch(req)
+                    .then(res => {
+                        cache.put(req, res.clone())
+                        return res
+                    })
+            } catch (error) {
+                return cache.match(req) 
+                    .then(res => {
+                        return res
+                    })
+            }
+        })
 }
