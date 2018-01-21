@@ -1,0 +1,25 @@
+{
+    "name": "Hello Progresive Web App",
+    "short_name": "Hello PWA",
+    "lang": "en-US",
+    "start_url": "/",
+    "display": "standalone",
+    "theme_color": "#0275d8",
+    "icons": [
+      {
+        "src": "images/favicon-16x16.png",
+        "sizes": "16x16",
+        "type": "png"
+      },
+      {
+        "src": "images/favicon-32x32.png",
+        "sizes": "32x32",
+        "type": "png"
+      },
+      {
+        "src": "images/favicon-96x96.png",
+        "sizes": "96x96",
+        "type": "png"
+      }
+    ]
+  }
