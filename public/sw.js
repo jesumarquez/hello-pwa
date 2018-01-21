@@ -1,16 +1,13 @@
+var staticAssets = [
+    '/',
+    '/index.html',
+    '/scripts/app.js'
+]
 
-self.addEventListener('install', event => {
+self.addEventListener('install', async event => {
+    const cache = await caches.open('hello-pwa-static')
+    cache.addAll(staticAssets)
     console.log('SW Installed')
-    event.waitUntil(
-        caches.open('hello-pwa-static')
-            .then(cache => {
-                cache.addAll([
-                    '/',
-                    '/index.html',
-                    '/scripts/app.js'
-                ])
-            })
-    )
 })
 
 self.addEventListener('activate', () => {
@@ -27,27 +24,19 @@ self.addEventListener('fetch', event => {
     }
 })
 
-function cacheFirst(req){
-    return caches.match(req)
-    .then(res => {
-        return res || fetch(req)
-    })
+async function cacheFirst(req){
+    const res = await caches.match(req)
+    return res || fetch(req)
 }
 
-function networkFirst(req){
-    return caches.open('hello-pwa-dynamic')
-        .then(cache => {
-            try {
-                return fetch(req)
-                    .then(res => {
-                        cache.put(req, res.clone())
-                        return res
-                    })
-            } catch (error) {
-                return cache.match(req) 
-                    .then(res => {
-                        return res
-                    })
-            }
-        })
+async function networkFirst(req){
+    const dynamicCache = await caches.open('hello-pwa-dynamic')
+    try {
+        const networkResponse = await fetch(req)
+        dynamicCache.put(req, networkResponse.clone())
+        return networkResponse
+    } catch (error) {
+        const cachedResponse = await dynamicCache.match(req) 
+        return cachedResponse
+    }
 }
